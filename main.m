@@ -1,12 +1,12 @@
 global  nx ny nz wi w vex vey  phi den deni pe pei ...
     dy2 dx2 dyt2 dxt2 dxt2d dyt2d source_p source_den ...
-    x dtz m den0 pe0
+    x dtz m
 %% Initial Value Setting
 dtz=0;
 nx=nx0+2;%nx positions in total including the end-points, nx0 not including
-ny=ny0+2;%ny0 positions in a circle, ny adds first and end points as boundary condition
 dx=alx/(nx-1);
 x=xmin:dx:xmax;
+ny=ny0+2;%ny0 positions in a circle, ny adds first and end points as boundary condition
 dy=aly/ny0;%periodical condition, so it's a loop
 
 % differential operators
@@ -24,10 +24,11 @@ source_p = repmat(s_p',[1,ny,nz]);
 source_den = repmat(s_den',[1,ny,nz]);
 
 % equilibrim term
-if(isempty(den0));den0=ones(size(x));end
-if(isempty(pe0));pe0=ones(size(x));end
-den0=repmat(den0',[1,ny,nz]);%平衡剖面为沿x方向, 扩充成三维矩阵
-pe0=repmat(pe0',[1,ny,nz]);
+if(isempty(den0));den0=bc_n(1)+amp*exp(-((x'-xs)/xw).^2);end
+if(isempty(pe0));pe0=amp*exp(-((x'-xs)/xw).^2);end
+den0([1,end])=bc_n;den0=repmat(den0',[1,ny,nz]);%平衡剖面为沿x方向, 扩充成三维矩阵
+den0=sbc(den0,2);den0=sbc(den0,3);
+pe0([1,end])=bc_p;pe0=repmat(pe0',[1,ny,nz]);pe0=sbc(pe0,2);pe0=sbc(pe0,3);
 
 % Poisson equation's matrix setting
 m=[0:ny0/2,floor(-ny0/2)+1:-1];%m is the mode number in y direction. Phi is real, so m is symmetric at ny0/2. e.g. [0,1,2,-2,-1], [0,1,2,-1]
@@ -44,13 +45,9 @@ phi=wi;vex=wi;vey=wi;pei=wi;deni=wi;
 if (restart == 0)
     pei(2:end-1,2:end-1,2:end-1)=pert*rand(nx-2,ny-2,nz-2);%deltape initial profile
     deni(2:end-1,2:end-1,2:end-1)=pert*rand(nx-2,ny-2,nz-2);%deltan initial profile
-    if (isdeltaf)
-        pe0=wi;den0=wi;
-        pe0(2:end-1,2:end-1,2:end-1)=amp*repmat(exp(-((x(2:end-1)'-xs)/xw).^2),[1,ny-2,nz-2]);
-        den0(2:end-1,2:end-1,2:end-1)=bc_n(1)+amp*repmat(exp(-((x(2:end-1)'-xs)/xw).^2),[1,ny-2,nz-2]);
-    else
-        pei(2:end-1,2:end-1,2:end-1)=pei(2:end-1,2:end-1,2:end-1)+amp*repmat(exp(-((x(2:end-1)'-xs)/xw).^2),[1,ny-2,nz-2]);
-        deni(2:end-1,2:end-1,2:end-1)=bc_n(1)+deni(2:end-1,2:end-1,2:end-1)+amp*repmat(exp(-((x(2:end-1)'-xs)/xw).^2),[1,ny-2,nz-2]);
+    if (~isdeltaf)
+        pei(2:end-1,2:end-1,2:end-1)=pei(2:end-1,2:end-1,2:end-1)+pe0(2:end-1,2:end-1,2:end-1);
+        deni(2:end-1,2:end-1,2:end-1)=deni(2:end-1,2:end-1,2:end-1)+den0(2:end-1,2:end-1,2:end-1);
         pei=sbc(pei,1,bc_p);deni=sbc(deni,1,bc_n);
     end
     pei=sbc(pei,3);pei=sbc(pei,2);
