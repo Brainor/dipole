@@ -17,7 +17,7 @@ for k=2:nz-1
     
     parfor j=1:ny0
         % bi=-0.6*m2(j).^2./x.^4-0.7/dx^2.*(1./x1(2:end).^2+1./x1(1:end-1).^2);
-        lap_op=poisson_A+diag(-0.6*m(j).^2./x(2:end-1).^4);%Laplace operator
+        lap_op=poisson_A+diag(-0.6*m(j).^2./x(2:nx-1).^4);%Laplace operator
         phim(:,j)=lap_op\wm(:,j);
     end
     
