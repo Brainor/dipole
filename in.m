@@ -61,4 +61,4 @@ show_evo;% 2D profile (plot and video) in every ntp times. Profile at last slide
 show_profile;% profile with average of y (and t)
 show_phase_flux_phi;% phase analysis of p_e and Phi
 show_spectrum; % spectrum analysis
-show_eta; % ç”»etaå’Œomegapd
+show_eta; % etaºÍomegapd
