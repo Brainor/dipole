@@ -13,7 +13,7 @@ iz=2;
 nk=2;
 ky=(nk-1)*2*pi/aly;
 st=1;
-nts=50;
+% nts=50;
 t=0.001*100*(st:nts);
 %{
 for nt=1:nts

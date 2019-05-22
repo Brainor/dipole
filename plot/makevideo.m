@@ -37,6 +37,7 @@ aviobj.FrameRate=framerate;
 open(aviobj);
 for i=1:length(listing)
     frames=imread(listing{i});
+    frames(size(frames,1)+rem(size(frames,1),2),size(frames,2)+rem(size(frames,2),2),1)=0;%%把frame长宽变成偶数    
     writeVideo(aviobj,frames);
 end
 close(aviobj)

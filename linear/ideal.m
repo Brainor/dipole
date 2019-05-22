@@ -11,7 +11,7 @@ etas=linspace(0.4,2,200);etas=linspace(0,6,400);
 [X,Y]=meshgrid(etas,omegapds);
 rhom=1/25;
 gamma=5/3;
-m=1;
+m=3;
 m_perp=m;
 
 gr=nan(size(X));

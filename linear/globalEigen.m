@@ -1,7 +1,7 @@
 global xmax xmin x x1
 %参数设置
 isextended=0;%ideal:0, extended:1
-m=4;
+m=1;
 %默认参数
 gamma=5/3;
 L0=0.9;
@@ -54,9 +54,12 @@ N=sparse(N);
 
 [V,w]=eigs(N,M,3,'largestimag');
 %%
-draw_plot({L0./x(2:end-1),real(V(nx0+1:2*nx0,:))},['$$m=',num2str(m),'$$, $$\gamma=',num2str(imag(w(1))),'$$'],'L','');
-
-
+subplot(1,3,1)
+draw_plot({L0./x(2:end-1),real(V(nx0+1:2*nx0,:))},['$$m=',num2str(m),'$$, $$\rho_\star=',num2str(rhoL),'$$'],'L','\Re\{\Phi\}');
+lgd=legend(cellfun(@num2str,num2cell(imag(diag(w))),'UniformOutput',false),'Location','best','Box','off');
+lgd.Title.String='$$\gamma$$';lgd.Title.Interpreter='latex';
+%draw_plot({L0./x(2:end-1),[den0(2:end-1);pe0(2:end-1)]},'Equilibruim
+%Profile','L');legend('$$h_N$$','$$h_G$$','Interpreter','latex','Box','off');
 function h=h_profile(h0,c,~)
 global xmax xmin x x1
 b=c*(xmax-1)/(1-xmin);

@@ -18,8 +18,8 @@ dxt2d=tau/(dx^2)*dif;%dt/2dx*dif
 dyt2d=tau/(dy^2)*dif;
 
 % source
-s_p=tau*sp*exp(-((x-xs)/xw).^2);%pe source
-s_den=tau*sn*exp(-((x-xs)/xw).^2);%n source
+s_p=tau*sp*exp(-((x-xs_p)/xw).^2);%pe source
+s_den=tau*sn*exp(-((x-xs_n)/xw).^2);%n source
 source_p = repmat(s_p',[1,ny,nz]);
 source_den = repmat(s_den',[1,ny,nz]);
 
@@ -42,19 +42,20 @@ poisson_A=sparse(poisson_A);
 % Initialization
 wi=zeros(nx,ny,nz);
 phi=wi;vex=wi;vey=wi;pei=wi;deni=wi;
-if (restart == 0)
-    pei(2:end-1,2:end-1,2:end-1)=pert*rand(nx-2,ny-2,nz-2);%deltape initial profile
-    deni(2:end-1,2:end-1,2:end-1)=pert*rand(nx-2,ny-2,nz-2);%deltan initial profile
-    if (~isdeltaf)
-        pei(2:end-1,2:end-1,2:end-1)=pei(2:end-1,2:end-1,2:end-1)+pe0(2:end-1,2:end-1,2:end-1);
-        deni(2:end-1,2:end-1,2:end-1)=deni(2:end-1,2:end-1,2:end-1)+den0(2:end-1,2:end-1,2:end-1);
-        pei=sbc(pei,1,bc_p);deni=sbc(deni,1,bc_n);
-    end
-    pei=sbc(pei,3);pei=sbc(pei,2);
-    deni=sbc(deni,3);deni=sbc(deni,2);
-    den=deni;pe=pei;w=wi;
-elseif (restart == 1)
-    load rest.mat
+switch restart
+    case 0
+        pei(2:end-1,2:end-1,2:end-1)=pert*rand(nx-2,ny-2,nz-2);%deltape initial profile
+        deni(2:end-1,2:end-1,2:end-1)=pert*rand(nx-2,ny-2,nz-2);%deltan initial profile
+        if (~isdeltaf)
+            pei(2:end-1,2:end-1,2:end-1)=pei(2:end-1,2:end-1,2:end-1)+pe0(2:end-1,2:end-1,2:end-1);
+            deni(2:end-1,2:end-1,2:end-1)=deni(2:end-1,2:end-1,2:end-1)+den0(2:end-1,2:end-1,2:end-1);
+            pei=sbc(pei,1,bc_p);deni=sbc(deni,1,bc_n);
+        end
+        pei=sbc(pei,3);pei=sbc(pei,2);
+        deni=sbc(deni,3);deni=sbc(deni,2);
+        den=deni;pe=pei;w=wi;
+    case 1
+        load rest.mat
 end
 
 draw_plot({squeeze(pei(:,floor(ny/2),2)),'-o'},'initial $$p_e$$ profile at $$y=\pi$$','x','p_e');

@@ -11,7 +11,7 @@ etas=linspace(0.4,2,200);etas=linspace(0,6,400);
 [X,Y]=meshgrid(etas,omegapds);
 rhom=1/25;
 gamma=5/3;
-m=1;
+m=3;
 m_perp=m;
 
 gr=nan(size(X));
@@ -34,8 +34,8 @@ for i=1:length(omegapds)
 %         end
     end
 end
-gammaN=-real(1i*m*vectors(:,:,3).*conj(vectors(:,:,1)));
-gammap=-real(1i*m*vectors(:,:,3).*conj(vectors(:,:,2)));
+gammaN=real(1i*m*vectors(:,:,3).*conj(vectors(:,:,1)));
+gammap=real(1i*m*vectors(:,:,3).*conj(vectors(:,:,2)));
 angleN=angle(vectors(:,:,3)./vectors(:,:,1));
 anglep=angle(vectors(:,:,3)./vectors(:,:,2));
 %% eta, omegapd, {gamma,omega}
@@ -83,8 +83,8 @@ suptitle('extended MHD Mode with heat flux $$\frac{p_e^2}{\tilde{N}}$$','Interpr
 omegapds=linspace(1,2,500);
 omegapd0=[2,1.9,1.8,1.7,1.6,1.5];%取特定omegapd
 iy=zeros(size(omegapd0));
-eta=0;
-ms=1:80;
+eta=1.5;
+ms=1:40;
 [X,~]=meshgrid(ms,omegapds);
 rhom=1/25;
 gamma=5/3;
@@ -93,9 +93,9 @@ m=1;
 gr=inf(size(X));
 for i=1:length(omegapds)
     for j=1:length(ms)
-        eta=omegapds(i);m=ms(j);
-        A=[0,1,eta*1/(1+eta)-1;
-            -gamma,2*gamma,eta-gamma;
+        omegapd=omegapds(i);m=ms(j);
+        A=[0,1,omegapd*1/(1+eta)-1;
+            -gamma,2*gamma,omegapd-gamma;
             0,-1/0.6/rhom^2/m^2,0];
         w=eigs(A,1,'largestimag');
         if imag(w)>0
@@ -103,27 +103,32 @@ for i=1:length(omegapds)
         end
     end
 end
+%% 临时作图
 for i=1:length(iy)
     iy(i)=find(omegapds>=omegapd0(i),1);
 end
+subplot(2,2,4)
+draw_plot({ms,imag(gr(iy,:)),'.','Linewidth',1},...
+    ['$$\eta=',num2str(eta),'$$'],'m','\gamma/\omega_d','Box','on');
+%%
 subplot(2,2,1)
 draw_plot({ms*rhom,imag(gr(iy,:)),'.','Linewidth',1},...
-    'growth rate','k_y \rho_i','\gamma/\omega_d^{-1}');
+    'growth rate','k_y \rho_i','\gamma/\omega_d');
 lgd=legend(cellfun(@num2str,num2cell(omegapd0),'UniformOutput',false),'Location','best');
 lgd.Title.String='$$\frac{\omega_p^\star}{\omega_d}$$';lgd.Title.Interpreter='latex';
 subplot(2,2,2)
 draw_plot({ms*rhom,real(gr(iy,:)),'.','Linewidth',1},...
-    'frequency','k_y \rho_i','\omega/\omega_d^{-1}');
+    'frequency','k_y \rho_i','\omega/\omega_d');
 lgd=legend(cellfun(@num2str,num2cell(omegapd0),'UniformOutput',false),'Location','best');
 lgd.Title.String='$$\frac{\omega_p^\star}{\omega_d}$$';lgd.Title.Interpreter='latex';
 subplot(2,2,3)
 draw_plot({ms,imag(gr(iy,:)),'.','Linewidth',1},...
-    'growth rate','m','\gamma/\omega_d^{-1}');
+    'growth rate','m','\gamma/\omega_d');
 lgd=legend(cellfun(@num2str,num2cell(omegapd0),'UniformOutput',false),'Location','best');
 lgd.Title.String='$$\frac{\omega_p^\star}{\omega_d}$$';lgd.Title.Interpreter='latex';
 subplot(2,2,4)
 draw_plot({ms,real(gr(iy,:)),'.','Linewidth',1},...
-    'frequency','m','\omega/\omega_d^{-1}');
+    'frequency','m','\omega/\omega_d');
 lgd=legend(cellfun(@num2str,num2cell(omegapd0),'UniformOutput',false),'Location','best');
 lgd.Title.String='$$\frac{\omega_p^\star}{\omega_d}$$';lgd.Title.Interpreter='latex';
 suptitle({'dispersion relationship';['$$\eta=',num2str(eta),'$$, $$\rho_\star=' num2str(rhom) '$$']});
@@ -133,26 +138,33 @@ print(['plot/growthrate_eta=',num2str(eta),'.png'],'-dpng');
 % Gamma_p=real(i*m*Phi*p')
 % Gamma_T=real(i*m*Phi*(p/N)')
 figure
-h=subplot(3,2,1);
-ph=pcolor(X,Y,gammaN);shading interp;ph.ZData=ph.CData;
+h=subplot(2,2,1);
+% ph=pcolor(X,Y,gammaN);shading interp;ph.ZData=ph.CData;
+contour(X,Y,gammaN,'LevelStep',.05);
 h.XLabel.String='\eta';
 h.YLabel.Interpreter='latex';h.YLabel.String='$$\frac{\omega^\star_p}{\omega_d}$$';
 h.Title.Interpreter='latex';h.Title.String={'Particle flux';'$\Gamma_N=\Re\{im\Phi_mN_m^\star\}$'};colorbar;
-h=subplot(3,2,2);
-ph=pcolor(X,Y,gammap);shading interp;ph.ZData=ph.CData;
+h.Title.String='Particle flux';
+h=subplot(2,2,2);
+% ph=pcolor(X,Y,gammap);shading interp;ph.ZData=ph.CData;
+contour(X,Y,gammap,'LevelStep',.02);
 h.XLabel.String='\eta';
 h.YLabel.Interpreter='latex';h.YLabel.String='$$\frac{\omega^\star_p}{\omega_d}$$';
 h.Title.Interpreter='latex';h.Title.String={'Radial pressure flux';'$\Gamma_p=\Re\{im\Phi_mp_m^\star\}$'};colorbar;
-h=subplot(3,2,3);
-ph=pcolor(X,Y,angleN);shading interp;ph.ZData=ph.CData;
+h.Title.String='Radial pressure flux';
+h=subplot(2,2,3);
+% ph=pcolor(X,Y,angleN);shading interp;ph.ZData=ph.CData;
+contour(X,Y,angleN,'LevelStep',0.1);
 h.XLabel.String='\eta';
 h.YLabel.Interpreter='latex';h.YLabel.String='$$\frac{\omega^\star_p}{\omega_d}$$';
-h.Title.String='Phase lag between $\Phi_m$, $N_m$';h.Title.Interpreter='latex';colorbar;
-h=subplot(3,2,4);
-ph=pcolor(X,Y,anglep);shading interp;ph.ZData=ph.CData;
+h.Title.String='Phase lag $\delta\theta=\theta_\Phi-\theta_N$';h.Title.Interpreter='latex';colorbar;
+h=subplot(2,2,4);
+% ph=pcolor(X,Y,anglep);shading interp;ph.ZData=ph.CData;
+contour(X,Y,anglep,'LevelStep',0.05);
 h.XLabel.String='\eta';
 h.YLabel.Interpreter='latex';h.YLabel.String='$$\frac{\omega^\star_p}{\omega_d}$$';
-h.Title.String='Phase lag between $\Phi_m$, $p_m$';h.Title.Interpreter='latex';colorbar;
+h.Title.String='Phase lag $\delta\theta=\theta_\Phi-\theta_p$';h.Title.Interpreter='latex';colorbar;
+return
 h=subplot(3,2,5);
 ph=pcolor(X,Y,gammaT);shading interp;ph.ZData=ph.CData;
 h.XLabel.String='\eta';
@@ -178,7 +190,7 @@ subplot(2,2,4)
 h=draw_plot({etas,anglep(index,:)},'Phase lag between $\Phi_m$, $p_m$','\eta','\theta_\Phi-\theta_p');
 %% omemgapd, {GammaN, Gammap}(eta)
 figure
-eta=[0.6,2/3,4];
+eta=[0.6,2/3,2,4];
 index=arrayfun(@(x)find(etas>x,1),eta);
 subplot(1,2,1)
 h=draw_plot({omegapds,gammaN(:,index)},'Particle flux','\frac{\omega^\star_p}{\omega_d}','\Gamma_N');
