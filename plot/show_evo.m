@@ -1,53 +1,48 @@
 close all
-global x y
 %% draw the time evolution
+tic
 iz=2;%2d
 y=-dy:dy:aly;
-subplot_grid=[4,3];%subplot的前两个参量
-if (isdeltaf)%设定作图的变量
-    plot_variables={'phi','pei','deni',...%变量名称
-        'wi','pei+pe0','deni+den0',...
-        'vey','p','n',...
-        '(pei+pe0).*vex','p.*vex','n.*vex'};
-else
-    %     deni=deni-1;%因为N=ndV+1
-    plot_variables={'phi','sp0(pei)','sp0(deni)',...%变量名称
-        'wi','pei','deni',...
-        'vey','p','n',...
-        'pei.*vex','p.*vex','n.*vex'};
-end
-plot_titles={'\Phi','\widetilde{G}','\widetilde{N}','w','G','N','v_y','p_e','n','Gv_x','p_e v_x','nv_x'};%subplot标题
+plot_variables={'phi','pei','deni';...%变量名称
+        'wi','G','N';...
+        'vex','fluxG','fluxN';...
+        'vey','fluxp','fluxn'}';%遍历顺序为先列后行
+plot_titles={'\Phi','\widetilde{G}','\widetilde{N}','w','G','N','v_x','\widetilde{G}v_x','\widetilde{N}v_x','v_y','\widetilde{p}_e v_x','\widetilde{n}v_x'};
+subplot_grid=num2cell(size(plot_variables'));
 for nt=1:nts
-    load(sprintf('data/dat%4.4d.mat',nt))
+    data=load(sprintf('data/dat%4.4d.mat',nt),'phi','vex','deni','pei','wi','vey');
     if (isdeltaf)%设定作图的变量
-        n=(deni+den0).*repmat(x',[1,size(deni,2),size(deni,3)]).^4;
-        p=(pei+pe0).*repmat(x',[1,size(deni,2),size(deni,3)]).^(4*gamma);
+        data.N=data.deni+den0;
+        data.G=data.pei+pe0;
     else
-        n=deni.*repmat(x',[1,size(deni,2),size(deni,3)]).^4;
-        p=pei.*repmat(x',[1,size(deni,2),size(deni,3)]).^(4*gamma);
+        data.N=data.deni;data.deni=delt(data.deni);
+        data.G=data.pei;data.pei=delt(data.pei);
     end
-    pvx=p.*vex;
-    T=p./n;
-    for i=1:length(plot_variables)
-        draw_pcolor([subplot_grid,i],{eval(plot_variables{i}),y,x},['$$',plot_titles{i},'$$'],'y','x');
+    data.p=data.G.*repmat(x',[1,size(deni,2),size(deni,3)]).^(4*gamma);
+    data.n=data.N.*repmat(x',[1,size(deni,2),size(deni,3)]).^4;
+    data.fluxG=data.vex.*data.pei;
+    data.fluxN=data.vex.*data.deni;
+    data.fluxp=data.vex.*delt(data.p,2);
+    data.fluxn=data.vex.*delt(data.n,2);
+    for i=1:numel(plot_variables)
+        draw_pcolor([subplot_grid(:)',{i}],{data.(plot_variables{i}),y,x},['$$',plot_titles{i},'$$'],'y','x');
     end
     suptitle(num2str(nt),'FontSize',8);
     print(sprintf('plot/%4.4d',nt),'-dpng')
     clf;
 end
+toc
 makevideo('plot/0*.png','time_evolution');
 %% profile in the last slice, w/o average
 subplot_grid={4,2};
 plot_variables={'pei','p',...%variables name
     'deni','n',...
     'phi','wi',...
-    'vey','pvx'};
+    'vey','fluxp'};
 plot_titles={'G','p_e','N','\langle n\rangle','\Phi','w','v_y','p_e v_x'};%variables title
-n=deni.*repmat(x',[1,size(deni,2),size(deni,3)]).^4;
-p=pei.*repmat(x',[1,size(deni,2),size(deni,3)]).^(4*gamma);
 for i=1:length(plot_variables)
     subplot(subplot_grid{:},i);
-    draw_plot({x,eval([plot_variables{i},'(:,floor(ny/2),iz)'])},['$$',plot_titles{i},'$$'],'x','');
+    draw_plot({x,data.(plot_variables{i})(:,floor(ny/2),iz)},['$$',plot_titles{i},'$$'],'x','');
 end
 suptitle('last profile at $$y=\pi$$')
 print('plot/prof_last','-dpng');

@@ -15,7 +15,7 @@ restart=0;
 %restart=1;
 isextended=1;%ideal 0; extended 1
 isdeltaf=0;%using deltaf
-bc_p=[1,1];bc_n=[1,1];
+bc_p=1;bc_n=1;
 rhoL=.04;%rho_s/L
 
 % time grid.
@@ -52,13 +52,14 @@ nz=3;%2d
 x=xmin:alx/(nx0+1):xmax;
 % pe0=ones(size(x))+bc_p(1);
 % den0=amp*[(x(x<1)-x(1))/(1-x(1)),(x(x>=1)-x(end))/(1-x(end))]+bc_n(1);
-pe0=bc_p(1)+amp*exp(-((x-xs_p)/xw).^2);
-den0=bc_n(1)+amp*exp(-((x-xs_n)/xw).^2);
+% pe0=amp*exp(-((x-xs_p)/xw).^2);
+% den0=amp*exp(-((x-xs_n)/xw).^2);%默认情况
 
 
 main;
 show_evo;% 2D profile (plot and video) in every ntp times. Profile at last slide at y=pi
 show_profile;% profile with average of y (and t)
-show_phase_flux_phi;% phase analysis of p_e and Phi
+% show_phase_flux_phi;% phase analysis of p_e and Phi
+show_flux;% flux of G and N, and average G, N
 show_spectrum; % spectrum analysis
 show_eta; % eta和omegapd

@@ -6,8 +6,8 @@
 %% with N evolution, scan eta, omegapd
 % Gamma_N=real(i*m*Phi*N')
 % Gamma_p=real(i*m*Phi*p*)
-omegapds=linspace(1,2,500);omegapds=linspace(1.2,3,1000);
-etas=linspace(0.4,2,200);etas=linspace(0,6,400);
+omegapds=linspace(1,2,500);omegapds=linspace(1.2,2,1000/2);
+etas=linspace(0.4,2,200);etas=linspace(0,6,400/2);
 [X,Y]=meshgrid(etas,omegapds);
 rhom=1/25;
 gamma=5/3;
@@ -84,7 +84,7 @@ omegapds=linspace(1,2,500);
 omegapd0=[2,1.9,1.8,1.7,1.6,1.5];%È¡ÌØ¶¨omegapd
 iy=zeros(size(omegapd0));
 eta=1.5;
-ms=1:40;
+ms=1:10;
 [X,~]=meshgrid(ms,omegapds);
 rhom=1/25;
 gamma=5/3;
@@ -108,8 +108,10 @@ for i=1:length(iy)
     iy(i)=find(omegapds>=omegapd0(i),1);
 end
 subplot(2,2,4)
-draw_plot({ms,imag(gr(iy,:)),'.','Linewidth',1},...
+draw_plot({ms,imag(gr(iy,:)),'.-','Linewidth',1},...
     ['$$\eta=',num2str(eta),'$$'],'m','\gamma/\omega_d','Box','on');
+% lgd=legend(cellfun(@num2str,num2cell(omegapd0),'UniformOutput',false),'Location','best','NumColumns',2,'Box','off');
+% lgd.Title.String='$$\frac{\omega_p^\star}{\omega_d}$$';lgd.Title.Interpreter='latex';
 %%
 subplot(2,2,1)
 draw_plot({ms*rhom,imag(gr(iy,:)),'.','Linewidth',1},...

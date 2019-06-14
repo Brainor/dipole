@@ -21,7 +21,7 @@ for nt=1:nts
     print(sprintf('temp/%4.4d',nt),'-dpng');
     clf
 end
-makevideo('temp/*.png','time_evolution_of_spectrum_x=0.5');
+makevideo('temp/*.png','spectrum_t');
 rmdir temp s
 %% 非线性时间平均
 phim=zeros(1,ny);

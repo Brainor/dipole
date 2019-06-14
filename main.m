@@ -24,11 +24,11 @@ source_p = repmat(s_p',[1,ny,nz]);
 source_den = repmat(s_den',[1,ny,nz]);
 
 % equilibrim term
-if(isempty(den0));den0=bc_n(1)+amp*exp(-((x'-xs)/xw).^2);end
-if(isempty(pe0));pe0=amp*exp(-((x'-xs)/xw).^2);end
-den0([1,end])=bc_n;den0=repmat(den0',[1,ny,nz]);%平衡剖面为沿x方向, 扩充成三维矩阵
+if(isempty(den0));den0=amp*exp(-((x'-xs_n)/xw).^2);end
+if(isempty(pe0));pe0=amp*exp(-((x'-xs_p)/xw).^2);end
+den0=repmat(den0',[1,ny,nz]);%平衡剖面为沿x方向, 扩充成三维矩阵
 den0=sbc(den0,2);den0=sbc(den0,3);
-pe0([1,end])=bc_p;pe0=repmat(pe0',[1,ny,nz]);pe0=sbc(pe0,2);pe0=sbc(pe0,3);
+pe0=repmat(pe0',[1,ny,nz]);pe0=sbc(pe0,2);pe0=sbc(pe0,3);
 
 % Poisson equation's matrix setting
 m=[0:ny0/2,floor(-ny0/2)+1:-1];%m is the mode number in y direction. Phi is real, so m is symmetric at ny0/2. e.g. [0,1,2,-2,-1], [0,1,2,-1]
@@ -47,9 +47,11 @@ switch restart
         pei(2:end-1,2:end-1,2:end-1)=pert*rand(nx-2,ny-2,nz-2);%deltape initial profile
         deni(2:end-1,2:end-1,2:end-1)=pert*rand(nx-2,ny-2,nz-2);%deltan initial profile
         if (~isdeltaf)
-            pei(2:end-1,2:end-1,2:end-1)=pei(2:end-1,2:end-1,2:end-1)+pe0(2:end-1,2:end-1,2:end-1);
-            deni(2:end-1,2:end-1,2:end-1)=deni(2:end-1,2:end-1,2:end-1)+den0(2:end-1,2:end-1,2:end-1);
+            pei(2:end-1,2:end-1,2:end-1)=pei(2:end-1,2:end-1,2:end-1)+pe0(2:end-1,2:end-1,2:end-1)+bc_p;
+            deni(2:end-1,2:end-1,2:end-1)=deni(2:end-1,2:end-1,2:end-1)+den0(2:end-1,2:end-1,2:end-1)+bc_n;
             pei=sbc(pei,1,bc_p);deni=sbc(deni,1,bc_n);
+        else
+            pe0=pe0+bc_p;den0=den0+bc_n;
         end
         pei=sbc(pei,3);pei=sbc(pei,2);
         deni=sbc(deni,3);deni=sbc(deni,2);
@@ -57,7 +59,6 @@ switch restart
     case 1
         load rest.mat
 end
-
 draw_plot({squeeze(pei(:,floor(ny/2),2)),'-o'},'initial $$p_e$$ profile at $$y=\pi$$','x','p_e');
 print('plot/prof_pe_initial','-dpng')
 close
@@ -71,7 +72,7 @@ for nt=1:nts
         sfield
         f=0.5;
         fi=0.5;
-        %svi(f,fi)
+        %sv(f,fi)
         sw(f,fi)
         spe(f,fi)
         sden(f,fi)
@@ -80,7 +81,7 @@ for nt=1:nts
         sfield
         f=1.0;
         fi=0.0;
-        %svi(f,fi)
+        %sv(f,fi)
         sw(f,fi);
         spe(f,fi)
         sden(f,fi)
