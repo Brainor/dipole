@@ -1,5 +1,5 @@
 function h=delt(f,varargin)
-    % SP0 find the turbulent part. Minus the mean value in the y direction
+    % DELT find the turbulent part. Minus the mean value in the y direction
     % 减去边界的部分
     % 若为两个参数，则考虑边界, 第二个参数为平均的维数
     h=zeros(size(f));

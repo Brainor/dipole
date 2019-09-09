@@ -64,8 +64,11 @@ print('plot/prof_pe_initial','-dpng')
 close
 
 %% Solve Equations
+gcp;
+fprintf('nt=0/%d',nts);
 for nt=1:nts
-    fprintf('nt=%d/%d\n',nt,nts);
+    fprintf('%c',8*ones(1,length(sprintf('%d/%d',nt-1,nts))));
+    fprintf('%d/%d',nt,nts);
     for ntt=1:ntp
         %         fprintf('nt=%d/%d\n',ntt,ntp);%debug
         %         debug(wi);debug(pei);debug(deni);debug(w);debug(pe);debug(den);debug(phi);fprintf(newline);
@@ -89,9 +92,11 @@ for nt=1:nts
         
         done=isfinite(pei(2,2,2));
         if done==0
+            fprintf('\n');
             error('nan')
         end
     end
     save(sprintf('data/dat%4.4d',nt),'wi','pei','deni','phi','w','pe','den', 'vey','vex')
 end
+fprintf('\n');
 
