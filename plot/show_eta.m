@@ -58,7 +58,7 @@ clf
 for i=1:numel(plot_variables)
     subplot(subplot_grid{:},i);
     h=draw_plot({1:nts,data2.(plot_variables{i})},['$$',plot_titles{i},'$$'],'t','','Box','on');
-    line(h,'XData',h.XLim,'YData',baseline{i}*ones(size(ix)),'LineStyle','--')
+    line(h,'XData',h.XLim,'YData',baseline{i}*ones(1,2),'LineStyle','--')
     h.YTick=sort([baseline{i},h.YTick]);h.YTickLabel{2}=baseline_text{i};
     legend(cellstr(num2str(ix','$$x=%g$$')),'Interpreter','latex','Box','off');
 end

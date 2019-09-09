@@ -17,11 +17,11 @@ function h=draw_pcolor(position,c,varargin)
     colorbar(h);
     colormap(h,'jet');
     if ~isempty(varargin)
-        title(varargin{1},'Interpreter','latex');
+        if(~isempty(varargin{1})),title(h,varargin{1},'Interpreter','latex');end
         if length(varargin)>1
-            xlabel(h,['$$',varargin{2},'$$'],'Interpreter','latex');
+            if(~isempty(varargin{2})),xlabel(h,['$$',varargin{2},'$$'],'Interpreter','latex');end
             if length(varargin)>2
-                ylabel(h,['$$',varargin{3},'$$'],'Interpreter','latex');
+                if(~isempty(varargin{3})),ylabel(h,['$$',varargin{3},'$$'],'Interpreter','latex');end
                 if length(varargin)>3
                     set(h,varargin{4:end});
                 end

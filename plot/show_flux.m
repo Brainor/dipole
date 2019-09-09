@@ -24,6 +24,7 @@ subplot(1,2,2)
 draw_plot({(nt_start:nts),[flux_pt(2,:);flux_nt(2,:)]},'flux time evolution at slice 1-200','t','','Box','on');
 legend('$$\Gamma_G(x=0.7)$$','$$\Gamma_N(x=0.7)$$','Interpreter','latex','Box','off');
 print('plot/flux_ts','-dpng');
+return;
 %% 频数图
 [counts,edges]=histcounts(flux_nt(120:end),8);
 draw_plot({edges(1:end-1),counts},'PDF at 120-200');
@@ -50,7 +51,7 @@ for nt=1:nts
     frame = getframe(gcf);
     writeVideo(v,frame);
 end
-toc
+toc;
 close(v);
 %% 时间movie.测试
 plot_variables={'pe0','den0';
@@ -120,3 +121,22 @@ dden=delt(data.deni(ix,:,iz),2);
 draw_plot({-dy:dy:aly,[dpe;dphi;dden]},'$$x=1$$','y');
 legend('$$\widetilde{G}$$','$$\widetilde{\Phi}$$','$$\widetilde{N}$$','Interpreter','latex','Box','off');
 print('plot\test','-dpng');
+
+%% 增长率
+phi_grow=ones(1,nts);pe_grow=phi_grow;
+ix=find(x>0.9,1);iy=ny0/2,iz=2;
+close
+for nt=1:nts
+    data=load(sprintf('data/dat%4.4d.mat',nt),'phi','pei');
+    phi_grow(nt)=data.phi(ix,iy,iz);
+    pe_grow(nt)=data.pei(ix,iy,iz);
+end
+subplot(1,2,1)
+draw_plot({[phi_grow;pe_grow]'},'profile','nt');legend('$$\Phi$$','$$G$$','Interpreter','latex','Location','best','Box','off');
+subplot(1,2,2);
+draw_plot({log(abs(phi_grow))},'$$x=0.9, y=\pi$$','nt','\ln |\Phi|');
+print('plot\growthrate','-dpng');
+[gx,gy]=ginput(2);gx=floor(gx);
+kk=polyfit((gx(1):gx(2))*ntp*tau,log(abs(phi_grow(gx(1):gx(2)))),1);
+text(gx(1),gy(1),['$$\gamma=',num2str(kk(1),'%.2f'),'$$'],'Interpreter','latex');
+print('plot\growthrate','-dpng');

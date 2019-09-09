@@ -49,8 +49,7 @@ for i=1:numel(plot_variables)
 end
 suptitle({'profile with time and $$y$$ average in nonlinear phase','in radial direction'})
 print('plot/profile_L_meanyt','-dpng');
-clf;
-close
+
 
 %% 环向平均profile
 nt_slice=[1,72,157];%初始状态, 线性阶段, 非线性阶段
@@ -64,7 +63,7 @@ plot_variables={'pe0','den0';
 plot_titles={'G','N','\Gamma_G','\Gamma_N','p_e','n'};
 plot_subtitles={'in initial state','in linear state','in nonlinear state'};
 subplot_grid=num2cell(size(plot_variables'));
-figure
+close
 for i=1:length(nt_slice)
     clf;
     data=load(sprintf('data/dat%4.4d.mat',nt_slice(i)),'deni','phi','vex','pei');
@@ -125,7 +124,7 @@ for nt=1:nts
 end
 makevideo('temp/*.png','flux');
 rmdir temp s
-toc
+time=toc;fprintf('profile一维图: %.2f秒\n',time);
 %% 环向平均N随时间演化, 给定x
 ix=[0.7,0.8,0.9,1];
 ix_index=arrayfun(@(ix)find(x>ix,1),ix);
@@ -137,7 +136,7 @@ end
 subplot(1,2,1)
 draw_plot({1:nts,n},'density profile $$N$$ with toroidal average','t','','Box','off');
 subplot(1,2,2)
-draw_plot({1:nts,(n-1).*repmat(ix',[1,nts]).^4},'density profile $$n$$ with toroidal average','t','','Box','off');
+draw_plot({1:nts,(n-bc_n).*repmat(ix',[1,nts]).^4},'density profile $$n$$ with toroidal average','t','','Box','off');
 legend(cellstr(num2str(ix','$$x=%g$$')),'Interpreter','latex','Box','off');
 print('plot/N_t','-dpng')
 %% 环向平均flux随时间演化, 给定x
